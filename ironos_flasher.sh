@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-10-28T12:54:52+0200
+# date:   2021-10-28T19:21:10+0200
 
 script=$(basename "$0")
 help="$script [-h/--help] -- script for flashing firmware to compatible devices
@@ -120,15 +120,15 @@ case "$1" in
         fi
 
         while [ $max_retries -ge 1 ]; do
-                flash_device "$1"
-                if [ "$result" = "firmware.rdy" ]; then
-                    max_retries=0
-                    printf "\n  Flashing successful!\n"
-                else
-                    max_retries=$((max_retries-1))
-                    printf "\n  Flashing error! Try again %d more time...\n" \
-                        "$max_retries"
-                fi
+            flash_device "$1"
+            if [ "$result" = "firmware.rdy" ]; then
+                max_retries=0
+                printf "\n  Flashing successful!\n"
+            else
+                max_retries=$((max_retries-1))
+                printf "\n  Flashing error! Try again %d more time...\n" \
+                    "$max_retries"
+            fi
         done
 
         printf "\n"
