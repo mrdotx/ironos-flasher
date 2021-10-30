@@ -3,7 +3,15 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-10-29T14:37:23+0200
+# date:   2021-10-30T10:45:21+0200
+
+# auth can be something like sudo -A, doas -- or nothing,
+# depending on configuration requirements
+auth="sudo"
+
+# config
+mnt_dir="/tmp/ironos"
+max_attempts=2
 
 script=$(basename "$0")
 help="$script [-h/--help] -- script for flashing firmware to compatible devices
@@ -12,43 +20,48 @@ help="$script [-h/--help] -- script for flashing firmware to compatible devices
 
   Settings:
     [-a/--attempts] = maximum attempts until successfully flash the device
-                      (default: 2)
+                      (default: $max_attempts)
     <hexfile>       = file to be flashed to the device
 
   Examples:
     $script TS100_EN.hex
     $script -a 1 TS100_EN.hex
-    $script --attempts 5 TS100_EN.hex"
+    $script --attempts 5 TS100_EN.hex
 
-mnt_dir="/tmp/ironos"
-gautomount=0
-instructions=0
+  Config:
+    mnt_dir      = $mnt_dir
+    max_attempts = $max_attempts"
 
-disable_gautomount() {
-    which gsettings > /dev/null \
-        || return 1
+gnome_automount() {
+    schema="org.gnome.desktop.media-handling"
+    key="automount"
 
-    ! gsettings get org.gnome.desktop.media-handling automount \
-        | grep true > /dev/null \
-        && gautomount=1  \
-        && gsettings set org.gnome.desktop.media-handling automount false
-}
+    case "$1" in
+        disable)
+            command -v gsettings > /dev/null 2>&1 \
+                || return 1
 
-enable_gautomount() {
-    [ "$gautomount" -ne 0 ] \
-        && gsettings set org.gnome.desktop.media-handling automount true
-}
-
-device_attached() {
-    output=$(lsblk -bro name,model | grep 'DFU.*Disk') \
-        || return 1
-    device=$(printf "/dev/%s" "$output" | cut -d' ' -f1)
-    instructions=1
+            gsettings get "$schema" "$key" \
+                | grep -q true \
+                && automount=1 \
+                && gsettings set "$schema" "$key" false
+            ;;
+        enable)
+            [ "$automount" -ne 0 ] \
+                && gsettings set "$schema" "$key" true
+    esac
 }
 
 wait_for_device() {
+    device_attached() {
+        output=$(lsblk -bro name,model | grep 'DFU.*Disk') \
+            || return 1
+        device=$(printf "/dev/%s" "$output" | cut -d' ' -f1)
+        instructions=0
+    }
+
     while ! device_attached; do
-        [ "$instructions" -eq 0 ] \
+        [ "$instructions" -eq 1 ] \
             && printf "%s\n" \
                 "" \
                 "#######################################################" \
@@ -59,21 +72,21 @@ wait_for_device() {
                 "#    holding the button closest to the tip pressed    #" \
                 "#                                                     #" \
                 "#######################################################" \
-            && instructions=1
+            && instructions=0
         sleep .1
     done
 }
 
 mount_device() {
     mkdir -p "$mnt_dir"
-    ! sudo mount -t msdos -o rw,umask=0000 "$device" "$mnt_dir" \
+    ! $auth mount -t msdos -o rw,umask=0000 "$device" "$mnt_dir" \
         && printf "Failed to mount %s on %s\n" "$device" "$mnt_dir"\
         && exit 1
 }
 
 umount_device() {
     [ -d "$mnt_dir" ] \
-        && ! (mountpoint "$mnt_dir" > /dev/null && sudo umount "$mnt_dir") \
+        && ! (mountpoint -q "$mnt_dir" && $auth umount "$mnt_dir") \
         && printf "Failed to unmount %s\n" "$mnt_dir"\
         && exit 1
     sleep 1
@@ -94,7 +107,7 @@ check_file() {
     fi
 }
 
-check_int() {
+check_integer() {
     ! [ "$1" -eq "$1" ] 2> /dev/null \
         && printf "%s\n\n  %s\n    '%s' %s\n" \
             "$help" \
@@ -105,9 +118,12 @@ check_int() {
 }
 
 flash_device() {
+    automount=0
+    instructions=1
     max_attempts=$2
+
     while [ "$max_attempts" -ge 1 ]; do
-        disable_gautomount
+        gnome_automount "disable"
 
         wait_for_device
         printf "\nFound config disk device on %s\n" "$device"
@@ -127,15 +143,18 @@ flash_device() {
         )
 
         umount_device
-        enable_gautomount
+        gnome_automount "enable"
 
         if [ "$result" = "firmware.rdy" ]; then
             max_attempts=0
             printf "\n  Flashing successful!\n"
         else
             max_attempts=$((max_attempts-1))
-            printf "\n  Flashing error! Try again %d more time(s)...\n" \
-                "$max_attempts"
+            printf "\n  %s\n  %s %d\n  %s\n" \
+                "Flashing error!" \
+                "Attempts left:" \
+                "$max_attempts" \
+                "Please wait..."
         fi
     done
 }
@@ -145,18 +164,18 @@ case "$1" in
         printf "%s\n" "$help"
         ;;
     -a | --attempts )
-        check_int "$2"
-        retries=$2
+        check_integer "$2"
+        max_attempts=$2
         shift 2
 
         check_file "$1"
-        flash_device "$1" "$retries"
+        flash_device "$1" "$max_attempts"
 
         printf "\n"
         ;;
     *)
         check_file "$1"
-        flash_device "$1" 2
+        flash_device "$1" "$max_attempts"
 
         printf "\n"
         ;;
