@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-10-30T10:45:21+0200
+# date:   2021-10-30T17:00:44+0200
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -47,21 +47,21 @@ gnome_automount() {
                 && gsettings set "$schema" "$key" false
             ;;
         enable)
-            [ "$automount" -ne 0 ] \
+            [ -z "$automount" ] \
                 && gsettings set "$schema" "$key" true
     esac
 }
 
 wait_for_device() {
     device_attached() {
-        output=$(lsblk -bro name,model | grep 'DFU.*Disk') \
+        dfu_disk=$(lsblk -bro name,model | grep 'DFU.*Disk') \
             || return 1
-        device=$(printf "/dev/%s" "$output" | cut -d' ' -f1)
+        device=$(printf "/dev/%s" "$dfu_disk" | cut -d' ' -f1)
         instructions=0
     }
 
     while ! device_attached; do
-        [ "$instructions" -eq 1 ] \
+        [ -z "$instructions" ] \
             && printf "%s\n" \
                 "" \
                 "#######################################################" \
@@ -79,7 +79,7 @@ wait_for_device() {
 
 mount_device() {
     mkdir -p "$mnt_dir"
-    ! $auth mount -t msdos -o rw,umask=0000 "$device" "$mnt_dir" \
+    ! $auth mount -t msdos -o umask=0000 "$device" "$mnt_dir" \
         && printf "Failed to mount %s on %s\n" "$device" "$mnt_dir"\
         && exit 1
 }
@@ -95,8 +95,8 @@ umount_device() {
 
 check_file() {
     if [ ! -f "$1" ] \
-        || [ "$(head -c1 "$1")" != ":" ] \
-        || [ "$(tail -n1 "$1" | head -c1)" != ":" ]; then
+        || [ "$(head -c15 "$1")" != ":020000040800F2" ] \
+        || [ "$(tail -n1 "$1" | head -c11)" != ":00000001FF" ]; then
             printf "%s\n\n  %s\n    '%s' %s\n    %s\n" \
                 "$help" \
                 "Error:" \
@@ -118,8 +118,6 @@ check_integer() {
 }
 
 flash_device() {
-    automount=0
-    instructions=1
     max_attempts=$2
 
     while [ "$max_attempts" -ge 1 ]; do
