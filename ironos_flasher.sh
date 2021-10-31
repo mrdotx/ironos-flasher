@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-10-30T17:00:44+0200
+# date:   2021-10-31T18:30:47+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -135,9 +135,10 @@ flash_device() {
         wait_for_device
         mount_device
 
-        result=$(find "$mnt_dir" -type f -iname 'firmware.*' \
-            | cut -d"/" -f4 \
-            | tail -n1 \
+        result=$(basename \
+            "$(find "$mnt_dir" -type f -iname 'firmware.*' \
+                | tail -n1 \
+            )" \
         )
 
         umount_device
