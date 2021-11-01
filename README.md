@@ -11,6 +11,7 @@ shell script for flashing the open source soldering iron firmware (ironos) to co
 ![github.hex](logos/github.png)
 ![miniware.hex](logos/miniware.png)
 ![nintendo.hex](logos/nintendo.png)
+![open_source.hex](logos/open_source.png)
 ![pacman.hex](logos/pacman.png)
 ![sainsmart.hex](logos/sainsmart.png)
 ![sequre.hex](logos/sequre.png)
