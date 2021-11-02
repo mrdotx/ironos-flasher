@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-11-02T11:01:29+0100
+# date:   2021-11-02T13:26:00+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -148,11 +148,10 @@ flash_device() {
             printf "\n  Flashing successful!\n"
         else
             max_attempts=$((max_attempts-1))
-            printf "\n  %s\n  %s %d\n  %s\n" \
-                "Flashing error!" \
+            printf "\n  %s\n  %s %d\n" \
+                "Flashing not successful, please wait..." \
                 "Attempts left:" \
-                "$max_attempts" \
-                "Please wait..."
+                "$max_attempts"
         fi
     done
 
