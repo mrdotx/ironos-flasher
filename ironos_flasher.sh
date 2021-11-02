@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-10-31T18:30:47+0100
+# date:   2021-11-02T11:01:29+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -108,21 +108,21 @@ check_file() {
 }
 
 check_integer() {
-    ! [ "$1" -eq "$1" ] 2> /dev/null \
+    ! [ "$1" -gt 0 ] 2> /dev/null \
         && printf "%s\n\n  %s\n    '%s' %s\n" \
             "$help" \
             "Error:" \
             "$1" \
-            "doesn't look like a valid integer." \
+            "doesn't look like a positive integer." \
         && exit 1
 }
 
 flash_device() {
     max_attempts=$2
 
-    while [ "$max_attempts" -ge 1 ]; do
-        gnome_automount "disable"
+    gnome_automount "disable"
 
+    while [ "$max_attempts" -gt 0 ]; do
         wait_for_device
         printf "\nFound config disk device on %s\n" "$device"
 
@@ -142,7 +142,6 @@ flash_device() {
         )
 
         umount_device
-        gnome_automount "enable"
 
         if [ "$result" = "firmware.rdy" ]; then
             max_attempts=0
@@ -156,6 +155,8 @@ flash_device() {
                 "Please wait..."
         fi
     done
+
+    gnome_automount "enable"
 }
 
 case "$1" in
