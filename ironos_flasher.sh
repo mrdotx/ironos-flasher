@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-11-02T13:26:00+0100
+# date:   2021-11-02T16:56:16+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -54,7 +54,7 @@ gnome_automount() {
 
 wait_for_device() {
     device_attached() {
-        dfu_disk=$(lsblk -bro name,model | grep 'DFU.*Disk') \
+        dfu_disk=$(lsblk -bro name,model | grep 'DFU.*Disk$') \
             || return 1
         device=$(printf "/dev/%s" "$dfu_disk" | cut -d' ' -f1)
         instructions=0
@@ -64,14 +64,15 @@ wait_for_device() {
         [ -z "$instructions" ] \
             && printf "%s\n" \
                 "" \
-                "#######################################################" \
-                "#                                                     #" \
-                "#      Waiting for config disk device to appear       #" \
-                "#                                                     #" \
-                "#  Connect the soldering iron with a USB cable while  #" \
-                "#    holding the button closest to the tip pressed    #" \
-                "#                                                     #" \
-                "#######################################################" \
+                "#################################################" \
+                "#                                               #" \
+                "#        Waiting for DFU Disk to appear         #" \
+                "#                                               #" \
+                "#  Connect the soldering iron with a USB cable  #" \
+                "#  while holding the button closest to the tip  #" \
+                "#  pressed until 'DFU: <version>' is displayed  #" \
+                "#                                               #" \
+                "#################################################" \
             && instructions=0
         sleep .1
     done
@@ -124,13 +125,13 @@ flash_device() {
 
     while [ "$max_attempts" -gt 0 ]; do
         wait_for_device
-        printf "\nFound config disk device on %s\n" "$device"
+        printf "\nFound DFU Disk on %s\n" "$device"
 
         mount_device
-        printf "Mounted config disk drive, flashing...\n"
+        printf "Mounted DFU Disk, flashing...\n"
         cat "$1" > "$mnt_dir/firmware.hex"
 
-        printf "Remounting config disk drive\n"
+        printf "Remounting DFU Disk\n"
         umount_device
         wait_for_device
         mount_device
