@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-11-03T10:22:36+0100
+# date:   2021-11-03T16:18:33+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -163,7 +163,7 @@ case "$1" in
     -h | --help | "")
         printf "%s\n" "$help"
         ;;
-    -a | --attempts )
+    -a | --attempts)
         check_integer "$2"
         max_attempts=$2
         shift 2
