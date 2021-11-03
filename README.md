@@ -8,6 +8,7 @@ shell script for flashing the open source soldering iron firmware (ironos) to co
 ![back_to_the_future.hex](logos/back_to_the_future.png)
 ![breaking_bad.hex](logos/breaking_bad.png)
 ![commodore.hex](logos/commodore.png)
+![do_not_touch.hex](logos/do_not_touch.png)
 ![github.hex](logos/github.png)
 ![miniware.hex](logos/miniware.png)
 ![nintendo.hex](logos/nintendo.png)
