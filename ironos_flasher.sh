@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-11-02T16:56:16+0100
+# date:   2021-11-03T10:22:36+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -33,21 +33,21 @@ help="$script [-h/--help] -- script for flashing firmware to compatible devices
     max_attempts = $max_attempts"
 
 gnome_automount() {
+    command -v gsettings > /dev/null 2>&1 \
+        || return 1
+
     schema="org.gnome.desktop.media-handling"
     key="automount"
 
     case "$1" in
         disable)
-            command -v gsettings > /dev/null 2>&1 \
-                || return 1
-
             gsettings get "$schema" "$key" \
                 | grep -q true \
                 && automount=1 \
                 && gsettings set "$schema" "$key" false
             ;;
         enable)
-            [ -z "$automount" ] \
+            [ -n "$automount" ] \
                 && gsettings set "$schema" "$key" true
     esac
 }
