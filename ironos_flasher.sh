@@ -3,11 +3,11 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2021-11-03T16:18:33+0100
+# date:   2022-03-09T13:41:26+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
-auth="sudo"
+auth="${EXEC_AS_USER:-sudo}"
 
 # config
 mnt_dir="/tmp/ironos"
