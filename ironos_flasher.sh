@@ -3,7 +3,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
 # github: https://github.com/mrdotx/ironos-flasher
-# date:   2022-07-12T11:12:01+0200
+# date:   2024-03-30T08:21:21+0100
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements
@@ -36,8 +36,8 @@ gnome_automount() {
     command -v gsettings > /dev/null 2>&1 \
         || return 1
 
-    schema="org.gnome.desktop.media-handling"
-    key="automount"
+    schema='org.gnome.desktop.media-handling'
+    key='automount'
 
     case "$1" in
         disable)
@@ -63,18 +63,17 @@ wait_for_device() {
     while ! device_attached; do
         [ -z "$instructions" ] \
             && printf "%s\n" \
-                "" \
-                "#################################################" \
-                "#                                               #" \
-                "#        Waiting for DFU Disk to appear         #" \
-                "#                                               #" \
-                "#  Connect the soldering iron with a USB cable  #" \
-                "#  while holding the button closest to the tip  #" \
-                "#  pressed until 'DFU: <version>' is displayed  #" \
-                "#                                               #" \
-                "#################################################" \
+                '#################################################' \
+                '#                                               #' \
+                '#        Waiting for DFU Disk to appear         #' \
+                '#                                               #' \
+                '#  Connect the soldering iron with a USB cable  #' \
+                '#  while holding the button closest to the tip  #' \
+                '#  pressed until "DFU: <version>" is displayed  #' \
+                '#                                               #' \
+                '#################################################' \
             && instructions=0
-        sleep .1
+        sleep 1
     done
 }
 
@@ -96,14 +95,14 @@ umount_device() {
 
 check_file() {
     if [ ! -f "$1" ] \
-        || [ "$(head -c15 "$1")" != ":020000040800F2" ] \
-        || [ "$(tail -n1 "$1" | head -c11)" != ":00000001FF" ]; then
+        || [ "$(head -c15 "$1")" != ':020000040800F2' ] \
+        || [ "$(tail -n1 "$1" | head -c11)" != ':00000001FF' ]; then
             printf "%s\n\n  %s\n    '%s' %s\n    %s\n" \
                 "$help" \
-                "Error:" \
+                'Error:' \
                 "$1" \
-                "doesn't look like a valid HEX file." \
-                "Please provide a regular HEX file to flash..."
+                'does not look like a valid HEX file.' \
+                'Please provide a regular HEX file to flash...'
             exit 1
     fi
 }
@@ -112,16 +111,16 @@ check_integer() {
     ! [ "$1" -gt 0 ] 2> /dev/null \
         && printf "%s\n\n  %s\n    '%s' %s\n" \
             "$help" \
-            "Error:" \
+            'Error:' \
             "$1" \
-            "doesn't look like a positive integer." \
+            'does not look like a positive integer.' \
         && exit 1
 }
 
 flash_device() {
     max_attempts=$2
 
-    gnome_automount "disable"
+    gnome_automount disable
 
     while [ "$max_attempts" -gt 0 ]; do
         wait_for_device
@@ -144,23 +143,23 @@ flash_device() {
 
         umount_device
 
-        if [ "$result" = "firmware.rdy" ]; then
+        if [ "$result" = 'firmware.rdy' ]; then
             max_attempts=0
             printf "\n  Flashing successful!\n"
         else
             max_attempts=$((max_attempts - 1))
             printf "\n  %s\n  %s %d\n" \
-                "Flashing not successful, please wait..." \
-                "Attempts left:" \
+                'Flashing not successful, please wait...' \
+                'Attempts left:' \
                 "$max_attempts"
         fi
     done
 
-    gnome_automount "enable"
+    gnome_automount enable
 }
 
 case "$1" in
-    -h | --help | "")
+    -h | --help | '')
         printf "%s\n" "$help"
         ;;
     -a | --attempts)
