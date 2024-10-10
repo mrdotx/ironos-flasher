@@ -4,7 +4,7 @@ shell script for flashing the open source soldering iron firmware (ironos) to co
 
 ## logos
 
-| images                                                   | file                                                   | comment                            |
+| image                                                    | file                                                   | comment                            |
 | :------------------------------------------------------- | :----------------------------------------------------- | :--------------------------------- |
 |                                                          | [\_clear.hex](logos/_clear.hex)                        | to remove the logo from the device |
 | ![atari.png](images/atari.png)                           | [atari.hex](logos/atari.hex)                           |                                    |
