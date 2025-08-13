@@ -2,8 +2,8 @@
 
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/ironos_flasher.sh
 # author: klassiker [mrdotx]
-# github: https://github.com/mrdotx/ironos-flasher
-# date:   2024-03-30T08:21:21+0100
+# url:    https://github.com/mrdotx/ironos-flasher
+# date:   2025-08-13T03:25:18+0200
 
 # auth can be something like sudo -A, doas -- or nothing,
 # depending on configuration requirements

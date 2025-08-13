@@ -1,7 +1,7 @@
 # path:   /home/klassiker/.local/share/repos/ironos-flasher/.gitignore
 # author: klassiker [mrdotx]
-# github: https://github.com/mrdotx/ironos-flasher
-# date:   2024-10-08T08:06:53+0200
+# url:    https://github.com/mrdotx/ironos-flasher
+# date:   2025-08-13T03:25:12+0200
 
 /firmware/
 /images/img2ts100.py
